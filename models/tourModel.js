@@ -37,6 +37,7 @@ const tourSchema = new mongoose.Schema(
       default: 4.5,
       min: [1, 'Rating must be above 1.0'], // built-in validator
       max: [5, 'Rating must be below 5.0'], // built-in validator
+      set: (val) => Math.round(val * 10) / 10, //setter function
     },
     ratingsQuantity: {
       type: Number,
@@ -117,6 +118,10 @@ const tourSchema = new mongoose.Schema(
     toObject: { virtuals: true },
   },
 );
+
+// tourSchema.index({ price: 1 });
+tourSchema.index({ price: 1, ratingsAverage: -1 });
+tourSchema.index({ slug: 1 });
 
 // In Mongoose, a virtual is a property that is not stored in MongoDB. Virtuals are typically used for computed properties on documents.
 tourSchema.virtual('durationWeeks').get(function (next) {
