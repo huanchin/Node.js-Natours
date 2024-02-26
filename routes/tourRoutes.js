@@ -8,6 +8,8 @@ const {
   deleteTour,
   getTourStats,
   getMonthlyPlan,
+  getToursWithin,
+  getDistance,
 } = require('./../controllers/tourControllers');
 const { protect, restrictTo } = require('./../controllers/authController');
 const reviewRouter = require('./reviewRoutes');
@@ -24,6 +26,14 @@ router
   .route('/monthly-plan/:year')
   .get(protect, restrictTo('admin', 'lead-guide', 'guide'), getMonthlyPlan);
 router.route('/top-5-cheap').get(aliasTopTours, getAllTours);
+
+router
+  .route('/tours-within/:distance/center/:latlng/unit/:unit')
+  .get(getToursWithin);
+// tours-Whithin?distance=...&latlng=...&unit=mi ---> mess y
+
+router.route('/distances/:latlng/unit/:unit').get(getDistance);
+
 router
   .route('/')
   .get(getAllTours)

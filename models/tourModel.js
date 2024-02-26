@@ -122,6 +122,7 @@ const tourSchema = new mongoose.Schema(
 // tourSchema.index({ price: 1 });
 tourSchema.index({ price: 1, ratingsAverage: -1 });
 tourSchema.index({ slug: 1 });
+tourSchema.index({ startLocation: '2dsphere' });
 
 // In Mongoose, a virtual is a property that is not stored in MongoDB. Virtuals are typically used for computed properties on documents.
 tourSchema.virtual('durationWeeks').get(function (next) {
@@ -178,13 +179,13 @@ tourSchema.pre(/^find/, function (next) {
 
 // 3) Aggregation middleware
 // In aggregate middleware, this refers to the aggregation object
-tourSchema.pre('aggregate', function (next) {
-  // console.log(this.pipeline());
-  this.pipeline().unshift({
-    $match: { secretTour: { $ne: true } },
-  });
-  next();
-});
+// tourSchema.pre('aggregate', function (next) {
+//   // console.log(this.pipeline());
+//   this.pipeline().unshift({
+//     $match: { secretTour: { $ne: true } },
+//   });
+//   next();
+// });
 
 // Compile Schema 變成 Model，如此可以透過這個 Model 建立和儲存 document
 // 會在 mongo 中建立名為 tour 的 collection
