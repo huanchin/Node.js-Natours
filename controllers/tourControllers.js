@@ -1,8 +1,84 @@
+const multer = require('multer');
+const sharp = require('sharp');
 const Tour = require('./../models/tourModel');
 const APIFeatures = require('./../utils/apiFeatures');
 const AppError = require('./../utils/appError');
 const factory = require('./handlerFactory');
 /********** Route Handlers **************/
+
+const multerStorage = multer.memoryStorage();
+
+const multerFilter = (req, file, cb) => {
+  if (file.mimetype.startsWith('image')) cb(null, true);
+  else cb(new AppError('Please upload only image!'), false);
+};
+
+const upload = multer({
+  storage: multerStorage,
+  fileFilter: multerFilter,
+});
+
+// upload.single('imageCover), upload.array('images', 3)
+exports.uploadTourImages = upload.fields([
+  { name: 'imageCover', maxCount: 1 },
+  { name: 'images', maxCount: 3 },
+]);
+
+exports.resizeTourImages = async (req, res, next) => {
+  try {
+    console.log(req.files);
+    if (!req.files.imageCover || !req.files.images) {
+      return next();
+    }
+
+    req.body.imageCover = `tours-${req.params.id}-${Date.now()}-cover.jpeg`;
+
+    // Process cover image
+    await sharp(req.files.imageCover[0].buffer)
+      .resize(2000, 1333)
+      .toFormat('jpeg')
+      .jpeg({ quality: 90 })
+      .toFile(`public/img/tours/${req.body.imageCover}`);
+
+    // Process images
+
+    req.body.images = [];
+
+    // async cannot work in forEach loop!!!!
+
+    // req.files.images.forEach(async (file, i) => {
+    //   const filename = `tours-${req.params.id}-${Date.now()}-${i + 1}.jpeg`;
+
+    //   await sharp(file.buffer)
+    //     .resize(2000, 1333)
+    //     .toFormat('jpeg')
+    //     .jpeg({ quality: 90 })
+    //     .toFile(`public/img/tours/${filename}`);
+
+    //   req.body.images.push(filename);
+    // });
+
+    // use Promise.all(array.map(async() => {await...})) in order to perform async function!!
+    await Promise.all(
+      req.files.images.map(async (file, i) => {
+        const filename = `tours-${req.params.id}-${Date.now()}-${i + 1}.jpeg`;
+
+        await sharp(file.buffer)
+          .resize(2000, 1333)
+          .toFormat('jpeg')
+          .jpeg({ quality: 90 })
+          .toFile(`public/img/tours/${filename}`);
+
+        req.body.images.push(filename);
+      }),
+    );
+
+    next();
+  } catch (err) {
+    next(err);
+  }
+};
+
 // exports.checkBody = (req, res, next) => {
 //   if (!req.body.name || !req.body.price) {
 //     return res.status(400).json({

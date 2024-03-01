@@ -12326,12 +12326,16 @@ if (logOutBtn) logOutBtn.addEventListener('click', _login.logout);
 if (updateDataForm) {
   updateDataForm.addEventListener('submit', function (e) {
     e.preventDefault();
-    var name = document.getElementById('name').value;
-    var email = document.getElementById('email').value;
-    (0, _updateSettings.updateSettings)({
-      name: name,
-      email: email
-    }, 'data');
+    // const name = document.getElementById('name').value;
+    // const email = document.getElementById('email').value;
+
+    // 上傳照片：如果要在一個 request 同時傳輸檔案與資料，要使用 Content-type: multipart/data-form
+    // Using to re-create multipart/form-data
+    var form = new FormData();
+    form.append('name', document.getElementById('name').value);
+    form.append('email', document.getElementById('email').value);
+    form.append('photo', document.getElementById('photo').files[0]);
+    (0, _updateSettings.updateSettings)(form, 'data');
   });
 }
 if (updatePasswordForm) {

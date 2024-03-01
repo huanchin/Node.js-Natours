@@ -18,6 +18,8 @@ const {
   updateMe,
   deleteMe,
   getMe,
+  uploadUserPhoto,
+  resizeUserPhoto,
 } = require('./../controllers/userControllers');
 const router = express.Router();
 
@@ -31,7 +33,7 @@ router.patch('/resetPassword/:token', resetPassword);
 router.use(protect);
 router.get('/me', getMe, getUser);
 router.patch('/updateMyPassword', updatePassword);
-router.patch('/updateMe', updateMe);
+router.patch('/updateMe', uploadUserPhoto, resizeUserPhoto, updateMe);
 router.delete('/deleteMe', deleteMe);
 
 // Only admin can access these route after this middleware
