@@ -1,6 +1,7 @@
 const path = require('path');
 const fs = require('fs');
 const express = require('express');
+
 const cors = require('cors');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
@@ -8,6 +9,7 @@ const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
 const hpp = require('hpp');
 const cookieParser = require('cookie-parser');
+const compression = require('compression');
 const morgan = require('morgan');
 const AppError = require('./utils/appError');
 const globelErrorHandler = require('./controllers/errorControllers');
@@ -43,7 +45,24 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Helmet helps secure Express apps by setting HTTP response headers
 // app.use(helmet());
-app.use(helmet({ contentSecurityPolicy: false }));
+app.use(
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        'default-src': [
+          "'self'",
+          'https://js.stripe.com/v3/',
+          'https://cdnjs.cloudflare.com',
+        ],
+        'script-src': [
+          "'self'",
+          'https://js.stripe.com/v3/',
+          'https://cdnjs.cloudflare.com',
+        ],
+      },
+    },
+  }),
+);
 
 // Cross-Origin Resource Sharing (CORS)
 // app.use(cors(corsOptions));
@@ -82,6 +101,7 @@ app.use(
   }),
 );
 
+app.use(compression());
 // create our own middleware
 // app.use((req, res, next) => {
 //   console.log('Hello from the middleware...');
