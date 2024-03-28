@@ -42,7 +42,7 @@ app.set('views', path.join(__dirname, 'views'));
 // Serving static files
 // app.use(express.static(`${__dirname}/public`));
 app.use(express.static(path.join(__dirname, 'public')));
-
+console.log(path.join(__dirname, 'public'));
 // Helmet helps secure Express apps by setting HTTP response headers
 // app.use(helmet());
 app.use(
